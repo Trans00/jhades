@@ -1,5 +1,9 @@
 package org.jhades.reports;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import org.jhades.model.ClasspathResource;
@@ -13,7 +17,7 @@ import org.jhades.model.ClasspathResources;
  */
 public class DuplicatesReport {
 
-    private static final List<String> resourcesToExclude = new ArrayList<>();
+    public static final List<String> resourcesToExclude = new ArrayList<>();
 
     static {
         resourcesToExclude.add("/META-INF/MANIFEST.MF");
@@ -41,25 +45,42 @@ public class DuplicatesReport {
         this.urlFormatter = urlFormatter;
     }
 
-    public void print() {
-        System.out.println("\n>> jHades multipleClassVersionsReport >> Duplicate classpath resources report: \n");
+    @Override
+    public String toString() {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(baos,true,"utf-8");
+            print(ps);
+            return baos.toString("utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public void print(){
+        print(System.out);
+    }
+
+    public void print(PrintStream ps) {
+        ps.println("\n>> jHades multipleClassVersionsReport >> Duplicate classpath resources report: \n");
         ClasspathResources.sortByNumberOfVersionsDesc(resourcesWithDuplicates);
 
         for (ClasspathResource resource : resourcesWithDuplicates) {
             if (!resourcesToExclude.contains(resource.getName())) {
-                System.out.println(resource.getName() + " has " + resource.getResourceFileVersions().size() + " versions on these classpath locations:\n");
+                ps.println(resource.getName() + " has " + resource.getResourceFileVersions().size() + " versions on these classpath locations:\n");
                 for (ClasspathResourceVersion resourceFileVersion : resource.getResourceFileVersions()) {
                     String classLoaderName = resourceFileVersion.getClasspathEntry().getClassLoaderName();
-                    System.out.println("    " + (classLoaderName != null ? classLoaderName : "") + " - "
+                    ps.println("    " + (classLoaderName != null ? classLoaderName : "") + " - "
                             + urlFormatter.formatUrl(resourceFileVersion.getClasspathEntry().getUrl())
                             + " - class file size = " + resourceFileVersion.getFileSize());
                 }
-                System.out.println();
+                ps.println();
             }
         }
 
         if (resourcesWithDuplicates.isEmpty()) {
-            System.out.println("No duplicates where found.\n");
+            ps.println("No duplicates where found.\n");
         }
     }
 }
