@@ -29,7 +29,6 @@ public class JHadesMojoUnitTest {
         maven.executeMojo(basedir, "check-clashes", newParameter("project", "${project}"));
     }
 
-//    @Ignore
     @Test(expected = MojoExecutionException.class)
     public void shouldFailIfTwoClashingFilesFound() throws Exception {
         File basedir = resources.getBasedir("test-module-no-dependencies");
@@ -37,10 +36,61 @@ public class JHadesMojoUnitTest {
         String baseDir = maven.readMavenProject(basedir).getBasedir().getAbsolutePath();
         classpathRootsParameter.addChild(newParameter("classpathRoot", baseDir + "/src/main/resources/ClashingDifferentSize1"));
         classpathRootsParameter.addChild(newParameter("classpathRoot", baseDir + "/src/main/resources/ClashingDifferentSize2"));
-//        Xpp3Dom excludePatternsParameter = new Xpp3Dom("excludePatterns");
-//        excludePatternsParameter.addChild(newParameter("excludePattern", ""));
         maven.executeMojo(basedir, "check-clashes",
                 newParameter("project", "${project}"),
+                classpathRootsParameter);
+    }
+
+    @Test
+    public void shouldSucceedIfTwoClashingFilesFoundAndFailIfFoundSetToFalse() throws Exception {
+        File basedir = resources.getBasedir("test-module-no-dependencies");
+        Xpp3Dom classpathRootsParameter = new Xpp3Dom("classpathRoots");
+        String baseDir = maven.readMavenProject(basedir).getBasedir().getAbsolutePath();
+        classpathRootsParameter.addChild(newParameter("classpathRoot", baseDir + "/src/main/resources/ClashingDifferentSize1"));
+        classpathRootsParameter.addChild(newParameter("classpathRoot", baseDir + "/src/main/resources/ClashingDifferentSize2"));
+        maven.executeMojo(basedir, "check-clashes",
+                newParameter("project", "${project}"),
+                classpathRootsParameter,
+                newParameter("failIfFound","false"));
+    }
+
+    @Test
+    public void shouldSucceedIfTwoClashingFilesFoundAndFileIsInExcludePattern() throws Exception {
+        File basedir = resources.getBasedir("test-module-no-dependencies");
+        Xpp3Dom classpathRootsParameter = new Xpp3Dom("classpathRoots");
+        String baseDir = maven.readMavenProject(basedir).getBasedir().getAbsolutePath();
+        classpathRootsParameter.addChild(newParameter("classpathRoot", baseDir + "/src/main/resources/ClashingDifferentSize1"));
+        classpathRootsParameter.addChild(newParameter("classpathRoot", baseDir + "/src/main/resources/ClashingDifferentSize2"));
+        Xpp3Dom excludesParameter = new Xpp3Dom("classpathRoots");
+        excludesParameter.addChild(newParameter("exclude","/ClashingDifferentSize.xml"));
+        maven.executeMojo(basedir, "check-clashes",
+                newParameter("project", "${project}"),
+                classpathRootsParameter,
+                excludesParameter);
+    }
+
+    @Test
+    public void shouldSucceedIfTwoClashingFilesHaveSameSize() throws Exception {
+        File basedir = resources.getBasedir("test-module-no-dependencies");
+        Xpp3Dom classpathRootsParameter = new Xpp3Dom("classpathRoots");
+        String baseDir = maven.readMavenProject(basedir).getBasedir().getAbsolutePath();
+        classpathRootsParameter.addChild(newParameter("classpathRoot", baseDir + "/src/main/resources/ClashingSameSize1"));
+        classpathRootsParameter.addChild(newParameter("classpathRoot", baseDir + "/src/main/resources/ClashingSameSize2"));
+        maven.executeMojo(basedir, "check-clashes",
+                newParameter("project", "${project}"),
+                classpathRootsParameter);
+    }
+
+    @Test(expected = MojoExecutionException.class)
+    public void shouldFailIfTwoClashingFilesHaveSameSizeAndExcludeSameSizeIsFalse() throws Exception {
+        File basedir = resources.getBasedir("test-module-no-dependencies");
+        Xpp3Dom classpathRootsParameter = new Xpp3Dom("classpathRoots");
+        String baseDir = maven.readMavenProject(basedir).getBasedir().getAbsolutePath();
+        classpathRootsParameter.addChild(newParameter("classpathRoot", baseDir + "/src/main/resources/ClashingSameSize1"));
+        classpathRootsParameter.addChild(newParameter("classpathRoot", baseDir + "/src/main/resources/ClashingSameSize2"));
+        maven.executeMojo(basedir, "check-clashes",
+                newParameter("project", "${project}"),
+                newParameter("excludeSameSize","false"),
                 classpathRootsParameter);
     }
 }

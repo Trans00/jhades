@@ -61,7 +61,7 @@ public class JHadesMojo extends AbstractMojo {
         excludePatterns.addAll(DuplicatesReport.resourcesToExclude);
         compiledPatterns = initPatterns(excludePatterns);
         List<ClasspathEntry> entries = new ArrayList<>();
-        classpathRoots.parallelStream().forEach(path ->
+        classpathRoots.stream().forEach(path ->
             {
                 File classpathRoot = new File(path);
                 if (classpathRoot.exists()) {
@@ -69,7 +69,7 @@ public class JHadesMojo extends AbstractMojo {
                 }
             }
         );
-        libFolders.parallelStream().forEach(path ->
+        libFolders.stream().forEach(path ->
             {
                 File libFolder = new File(path);
                 File[] children = libFolder.listFiles();
@@ -81,7 +81,7 @@ public class JHadesMojo extends AbstractMojo {
             }
         );
 
-        project.getArtifacts().parallelStream()
+        project.getArtifacts().stream()
                 .forEach(artifact -> entries.add(new ClasspathEntry(null,artifact.getFile().toURI().toString())));
 
         Artifact projectArtifact = project.getArtifact();
@@ -114,7 +114,7 @@ public class JHadesMojo extends AbstractMojo {
     }
 
     private boolean exclude(ClasspathResource resource) {
-        return compiledPatterns.parallelStream().noneMatch(pattern -> pattern.asPredicate().test(resource.getName()));
+        return compiledPatterns.stream().noneMatch(pattern -> pattern.asPredicate().test(resource.getName()));
     }
 
 }

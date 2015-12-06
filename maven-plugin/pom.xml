@@ -11,7 +11,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>jhades-maven-plugin</module>
-        <module>test-module-no-dependencies</module>
         <module>source-1</module>
         <module>source-2</module>
     </modules>
