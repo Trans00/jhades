@@ -60,7 +60,7 @@
     <modules>
         <module>jhades</module>
         <module>jhades-standalone-report</module>
-        <module>jhades-maven-plugin</module>
+        <module>maven-plugin</module>
     </modules>
 
     <dependencyManagement>
