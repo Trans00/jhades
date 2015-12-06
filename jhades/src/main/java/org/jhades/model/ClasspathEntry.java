@@ -1,5 +1,6 @@
 package org.jhades.model;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -156,12 +157,12 @@ public class ClasspathEntry {
         return manifestClasspathEntries;
     }
 
-    private List<ClasspathResourceVersion> scanClasspathEntry(Path start) throws IOException {
+    private List<ClasspathResourceVersion> scanClasspathEntry(final Path start) throws IOException {
         Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path classpathResourceFile, BasicFileAttributes attrs) throws IOException {
-                String resourceName = classpathResourceFile.toString();
-                logger.debug(getUrl() + " -" + resourceName);
+                String resourceName = "/" + start.relativize(classpathResourceFile).toString();
+                logger.debug(getUrl() + " -" + classpathResourceFile.toString());
                 ClasspathResourceVersion classFileVersion = new ClasspathResourceVersion(ClasspathEntry.this, resourceName, attrs.size());
                 resourceVersions.add(classFileVersion);
                 return CONTINUE;
